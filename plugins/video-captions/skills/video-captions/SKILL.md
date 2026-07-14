@@ -54,6 +54,26 @@ Examples of mapping a description → command:
 
 If the user gives no style, run the bare command — do not ask.
 
+## More capabilities (map these when asked)
+
+- **Viral / TikTok style**: `--word-by-word` — a few words at a time, active word highlighted
+  (defaults to big, bold, centred). Change the highlight with `--highlight <name|hex>`.
+  ("make it TikTok style / karaoke / word by word" → `--word-by-word`)
+- **Readability box**: `--box` (optional `--box-color <name|hex>`) — a band behind the text.
+- **Any language / translation**: `--lang <code>` sets the spoken language (default: auto);
+  `--translate` outputs English captions from any language.
+- **Subtitle files**: `--export srt|vtt|both` writes an editable file next to the video;
+  add `--no-burn` to skip rendering and only export.
+- **Fix wrong words (edit-then-burn)**: export with `--export srt`, let the user correct the
+  `.srt`, then burn the corrected file with `--from-srt "<file>.srt"` (no re-transcription).
+- **Batch**: pass a folder instead of a file to caption every video in it.
+
+Examples:
+- "make it a viral TikTok caption" → `--word-by-word`
+- "it's in Hindi, give me English subtitles" → `--translate`
+- "just give me an SRT file" → `--export srt --no-burn`
+- "caption all the videos in this folder" → pass the folder path
+
 ## Keep it cheap
 
 Don't read the other files unless something fails — just run the command. Error messages say

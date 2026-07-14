@@ -10,7 +10,10 @@ import sys
 from pathlib import Path
 
 
-def transcribe(video, model_size="base", out_path="segments.json"):
+def transcribe(video, model_size="base", out_path="segments.json", language=None, translate=False):
+    """language: source language code (None = auto-detect).
+    translate: if True, output English captions for any spoken language (Whisper translate task).
+    """
     from faster_whisper import WhisperModel
 
     # int8 keeps CPU usage/RAM low and is plenty accurate for captions.
@@ -20,6 +23,8 @@ def transcribe(video, model_size="base", out_path="segments.json"):
         str(video),
         word_timestamps=True,
         vad_filter=True,  # skip long silences -> tighter timing
+        language=language,
+        task="translate" if translate else "transcribe",
     )
 
     out_segments = []

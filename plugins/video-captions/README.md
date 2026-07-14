@@ -66,10 +66,29 @@ There are no rigid presets — pass whatever the desired look implies:
 | `--model` | `base` / `small` | transcription model (`small` = more accurate) |
 | `--out` | path | output file |
 
+### More capabilities
+
+| Flag | Meaning |
+|------|---------|
+| `--word-by-word` | viral / TikTok karaoke style — a few words at a time, active word highlighted (big & bold by default) |
+| `--highlight` | active-word colour for `--word-by-word` (name or hex, default yellow) |
+| `--box` / `--box-color` | semi-transparent band behind the text for busy footage |
+| `--lang <code>` | source language (default: auto-detect) |
+| `--translate` | output English captions from any spoken language |
+| `--export srt\|vtt\|both` | also write an editable subtitle file next to the video |
+| `--no-burn` | skip rendering; only export the subtitle file(s) |
+| `--from-srt <file>` | burn captions from an existing/edited `.srt` (no re-transcription) |
+| *(folder path)* | pass a directory to batch-caption every video in it |
+
 Examples:
 
 ```bash
 python3 scripts/caption.py talk.mp4 --pos top --size large --weight bold --color yellow
+python3 scripts/caption.py talk.mp4 --word-by-word                 # viral style
+python3 scripts/caption.py talk.mp4 --translate                    # English subs from any language
+python3 scripts/caption.py talk.mp4 --export srt --no-burn         # just an .srt
+python3 scripts/caption.py talk.mp4 --from-srt talk.srt            # burn a corrected .srt
+python3 scripts/caption.py ./clips                                 # batch a folder
 python3 scripts/caption.py talk.mp4 --color white --outline-color black --outline 4
 python3 scripts/caption.py talk.mp4 --shadow 0            # flat, minimal
 python3 scripts/caption.py talk.mp4 --model small         # if a few words were wrong
