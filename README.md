@@ -1,4 +1,4 @@
-# minidev-marketplace
+# katareayush-marketplace
 
 A Claude Code plugin marketplace. Currently hosts **video-captions**.
 
@@ -15,7 +15,7 @@ In Claude Code:
 
 ```
 /plugin marketplace add katareayush/video-captions
-/plugin install video-captions@minidev-marketplace
+/plugin install video-captions@katareayush-marketplace
 ```
 
 Then just say, in any project:
