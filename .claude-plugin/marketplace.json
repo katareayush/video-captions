@@ -9,7 +9,16 @@
     {
       "name": "video-captions",
       "source": "./plugins/video-captions",
-      "description": "Transcribe a video's speech locally and burn accurately-timed captions into it. Default look is minimal; the user can describe any style in plain words. Offline, cross-platform, no API key."
+      "description": "Transcribe a video's speech locally and burn accurately-timed captions into it. Default look is minimal; the user can describe any style in plain words. Offline, cross-platform, no API key.",
+      "author": {
+        "name": "katareayush",
+        "email": "katareayush2005@gmail.com"
+      },
+      "category": "productivity",
+      "keywords": ["video", "captions", "subtitles", "transcription", "whisper", "ffmpeg"],
+      "homepage": "https://github.com/katareayush/video-captions#readme",
+      "repository": "https://github.com/katareayush/video-captions",
+      "license": "MIT"
     }
   ]
 }

@@ -8,5 +8,7 @@
     "email": "katareayush2005@gmail.com"
   },
   "keywords": ["video", "captions", "subtitles", "transcription", "whisper", "ffmpeg"],
+  "homepage": "https://github.com/katareayush/video-captions#readme",
+  "repository": "https://github.com/katareayush/video-captions",
   "license": "MIT"
 }
