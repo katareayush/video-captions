@@ -1,0 +1,15 @@
+{
+  "name": "minidev-marketplace",
+  "description": "Skills and plugins by minidev.",
+  "owner": {
+    "name": "katareayush",
+    "email": "katareayush2005@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "video-captions",
+      "source": "./plugins/video-captions",
+      "description": "Transcribe a video's speech locally and burn accurately-timed captions into it. Default look is minimal; the user can describe any style in plain words. Offline, cross-platform, no API key."
+    }
+  ]
+}
