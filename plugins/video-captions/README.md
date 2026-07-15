@@ -39,7 +39,7 @@ python3 scripts/setup.py      # use `python` on Windows
 ```
 
 Installs faster-whisper and a subtitle-capable ffmpeg, then you're done. The Whisper model
-(~150 MB) downloads automatically the first time you caption a video; everything after is offline.
+downloads automatically the first time you caption a video (a few hundred MB); everything after is offline.
 
 ## Usage
 
@@ -63,7 +63,9 @@ There are no rigid presets — pass whatever the desired look implies:
 | `--shadow` | number (`0` = none) | shadow depth |
 | `--weight` | `bold` / `normal` | text weight |
 | `--font` | family name (`Impact`, `Georgia`) | font |
-| `--model` | `base` / `small` | transcription model (`small` = more accurate) |
+| `--model` | `base` / `small` / `medium` / `large-v3` | transcription model (default `small`; bigger = more accurate, slower) |
+| `--context` | free text | hint of names/jargon/topic so hard words transcribe correctly, e.g. `--context "Grafana, Ayush Katare"` |
+| `--lang` | code | force source language (default: auto-detect) |
 | `--out` | path | output file |
 
 ### More capabilities

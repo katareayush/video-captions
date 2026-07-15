@@ -28,7 +28,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/caption.py" "<path/to/video>"
 Writes `<name>_captioned.mp4` next to the input. With no style flags it uses a minimal,
 common look (clean white subtitles, thin outline, bottom-centre). Report the output path.
 
-The first caption run downloads the Whisper model (~150 MB) once; afterwards it's fully offline.
+The first caption run downloads the Whisper model once (a few hundred MB); afterwards it's fully offline.
 
 ## The user describes the design — you translate it into flags
 
@@ -43,8 +43,17 @@ There are no fixed presets. If the user describes a look, map their words to the
 - `--shadow <n>`   (depth; `0` = none)
 - `--weight bold|normal`
 - `--font <family>` (e.g. `Impact`, `Georgia`)
-- `--model base|small` (use `small` if the user says words were wrong)
 - `--out "<file>.mp4"`
+
+## Transcribe accurately (do this so captions read correctly)
+
+- **Context is the biggest lever.** If the user (or the request) mentions names, brands,
+  products, or the topic, pass them so those words aren't misheard:
+  `--context "Scrolt, Kubernetes, Ayush Katare, Grafana"`.
+- **Model:** default `small` is accurate. Use `--model medium` or `--model large-v3` for tough
+  audio, heavy accents, or when the user wants it perfect; `--model base` for a quick/light pass.
+  If the user says words came out wrong, re-run one tier higher and/or add `--context`.
+- **Language:** auto-detected. Force it with `--lang <code>` (e.g. `hi`, `es`) if detection is off.
 
 Examples of mapping a description → command:
 - "big bold yellow captions at the top" → `--pos top --size large --weight bold --color yellow`

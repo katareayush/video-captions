@@ -132,7 +132,8 @@ def caption_one(video, args, ffmpeg, ffprobe):
         seg_path = work / "segments.json"
         from transcribe import transcribe
         print(f"Transcribing {video.name} (first run downloads the model)...")
-        transcribe(video, args.model, seg_path, language=args.lang, translate=args.translate)
+        transcribe(video, args.model, seg_path, language=args.lang,
+                   translate=args.translate, context=args.context)
         segments = json.loads(seg_path.read_text(encoding="utf-8"))["segments"]
         events = bc.line_events(segments, bc.chars_per_line(width, height, style))
         if word_by_word:
@@ -166,7 +167,10 @@ def main():
     ap = argparse.ArgumentParser(description="Transcribe a video and burn in captions.")
     ap.add_argument("video", help="path to a video, or a folder to batch-caption")
     ap.add_argument("--pos", default=None, choices=["top", "center", "bottom"])
-    ap.add_argument("--model", default="base", help="whisper model (base, small, ...)")
+    ap.add_argument("--model", default="small",
+                    help="whisper model: base (fast) | small (default) | medium | large-v3 (most accurate)")
+    ap.add_argument("--context", default=None,
+                    help="hint of names/jargon/topic to transcribe hard words correctly")
     ap.add_argument("--out", default=None, help="output path (single video only)")
     # style overrides — Claude fills these from the user's freeform description
     ap.add_argument("--font", help="font family, e.g. Arial, Impact, Georgia")

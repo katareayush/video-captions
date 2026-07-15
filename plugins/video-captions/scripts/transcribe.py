@@ -10,9 +10,11 @@ import sys
 from pathlib import Path
 
 
-def transcribe(video, model_size="base", out_path="segments.json", language=None, translate=False):
+def transcribe(video, model_size="small", out_path="segments.json", language=None,
+               translate=False, context=None):
     """language: source language code (None = auto-detect).
     translate: if True, output English captions for any spoken language (Whisper translate task).
+    context: free-text hint (names, jargon, topic) to steer recognition of hard words.
     """
     from faster_whisper import WhisperModel
 
@@ -22,9 +24,14 @@ def transcribe(video, model_size="base", out_path="segments.json", language=None
     segments, info = model.transcribe(
         str(video),
         word_timestamps=True,
-        vad_filter=True,  # skip long silences -> tighter timing
+        vad_filter=True,          # skip long silences -> tighter timing
+        beam_size=5,              # wider search -> fewer mistakes
+        best_of=5,
+        temperature=[0.0, 0.2, 0.4, 0.6, 0.8, 1.0],  # fall back if a segment looks unreliable
+        condition_on_previous_text=True,             # use context across segments
         language=language,
         task="translate" if translate else "transcribe",
+        initial_prompt=context or None,
     )
 
     out_segments = []
