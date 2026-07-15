@@ -72,8 +72,10 @@ There are no rigid presets — pass whatever the desired look implies:
 
 | Flag | Meaning |
 |------|---------|
-| `--word-by-word` | viral / TikTok karaoke style — a few words at a time, active word highlighted (big & bold by default) |
-| `--highlight` | active-word colour for `--word-by-word` (name or hex, default yellow) |
+| *(default)* | bold, edited captions with the spoken word highlighted |
+| `--plain` | static subtitles with no spoken-word highlight |
+| `--word-by-word` | viral / TikTok karaoke style — a few words at a time, active word highlighted (big & bold) |
+| `--highlight` | highlight colour for the spoken word (name or hex, default yellow) |
 | `--box` / `--box-color` | semi-transparent band behind the text for busy footage |
 | `--lang <code>` | source language (default: auto-detect) |
 | `--translate` | output English captions from any spoken language |

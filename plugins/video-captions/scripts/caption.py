@@ -26,15 +26,16 @@ from ffmpeg_tools import find_ffmpeg
 
 VIDEO_EXTS = {".mp4", ".mov", ".mkv", ".webm", ".avi", ".m4v", ".mpg", ".mpeg", ".wmv", ".flv"}
 
-# Minimal, common baseline (clean white subtitles). Overridden by flags per the user's prompt.
+# Edited baseline: bold, punchy, high-contrast (real captions, not thin subtitles).
+# The spoken word is highlighted by default; overridden by flags per the user's prompt.
 DEFAULT_STYLE = {
     "font": "Arial",
-    "size_ratio": 0.05,   # font height as a fraction of video height
+    "size_ratio": 0.058,  # font height as a fraction of video height
     "primary": "FFFFFF",  # text colour (RRGGBB)
     "outline_color": "000000",
-    "outline": 2,         # outline width
+    "outline": 3,         # outline width
     "shadow": 1,          # shadow depth
-    "bold": False,
+    "bold": True,
 }
 
 COLORS = {
@@ -136,11 +137,14 @@ def caption_one(video, args, ffmpeg, ffprobe):
                    translate=args.translate, context=args.context)
         segments = json.loads(seg_path.read_text(encoding="utf-8"))["segments"]
         events = bc.line_events(segments, bc.chars_per_line(width, height, style))
+        hl = parse_color(args.highlight)
         if word_by_word:
-            ass = bc.render_word_by_word(segments, width, height, style, pos=pos,
-                                         highlight=parse_color(args.highlight))
-        else:
+            ass = bc.render_word_by_word(segments, width, height, style, pos=pos, highlight=hl)
+        elif args.plain:
             ass = bc.render_ass(events, width, height, style, pos=pos, box=args.box)
+        else:  # default "edited" look: full lines, spoken word highlighted
+            ass = bc.render_lines_highlighted(segments, width, height, style, pos=pos,
+                                              box=args.box, highlight=hl)
 
     # --- sidecar subtitle exports ------------------------------------------
     if args.export in ("srt", "both"):
@@ -183,7 +187,9 @@ def main():
     # feature flags
     ap.add_argument("--word-by-word", dest="word_by_word", action="store_true",
                     help="viral karaoke look: a few words at a time, active word highlighted")
-    ap.add_argument("--highlight", default="yellow", help="active-word colour for --word-by-word")
+    ap.add_argument("--plain", action="store_true",
+                    help="static subtitles with no spoken-word highlight")
+    ap.add_argument("--highlight", default="yellow", help="highlight colour for the spoken word")
     ap.add_argument("--box", action="store_true", help="semi-transparent band behind the text")
     ap.add_argument("--box-color", dest="box_color", help="box colour (name or hex, default black)")
     ap.add_argument("--export", default="none", choices=["none", "srt", "vtt", "both"],

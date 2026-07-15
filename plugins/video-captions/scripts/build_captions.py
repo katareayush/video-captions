@@ -201,6 +201,46 @@ def render_word_by_word(segments, width, height, style, pos="center", highlight=
     return "\n".join(out)
 
 
+def _wrap_words(words, cpl):
+    """Wrap a list of word dicts into <= MAX_LINES lines (each a list of the same dicts)."""
+    lines, cur, curlen = [], [], 0
+    for w in words:
+        wl = len(w["text"])
+        if cur and curlen + 1 + wl > cpl:
+            lines.append(cur); cur, curlen = [], 0
+        cur.append(w)
+        curlen += (1 if curlen else 0) + wl
+    if cur:
+        lines.append(cur)
+    if len(lines) > MAX_LINES:
+        lines = lines[: MAX_LINES - 1] + [[w for ln in lines[MAX_LINES - 1:] for w in ln]]
+    return lines
+
+
+def render_lines_highlighted(segments, width, height, style, pos="bottom", box=False, highlight="FFFF00"):
+    """Edited look: full readable lines with the currently-spoken word highlighted (karaoke)."""
+    alignment = {"bottom": 2, "center": 5, "top": 8}[pos]
+    margin_v = int(height * 0.06)
+    cpl = chars_per_line(width, height, style)
+    hl = to_ass_color(highlight)
+    chunks = [c for c in _chunk(flatten_words(segments), cpl * MAX_LINES, 99, MAX_GAP) if c]
+    out = [_ass_header(width, height, style, alignment, margin_v, side_margin(width), box)]
+    for chunk in chunks:
+        wrapped = _wrap_words(chunk, cpl)
+        for gi, w in enumerate(chunk):
+            start = w["start"]
+            end = chunk[gi + 1]["start"] if gi + 1 < len(chunk) else w["end"]
+            if end <= start:
+                end = start + 0.05
+            line_strs = []
+            for ln in wrapped:
+                parts = ["{\\c" + hl + "&}" + x["text"] + "{\\r}" if x is w else x["text"] for x in ln]
+                line_strs.append(" ".join(parts))
+            out.append(f"Dialogue: 0,{ass_time(start)},{ass_time(end)},Default,,0,0,0,,"
+                       + "\\N".join(line_strs))
+    return "\n".join(out)
+
+
 def render_srt(events):
     out = []
     for i, e in enumerate(events, 1):

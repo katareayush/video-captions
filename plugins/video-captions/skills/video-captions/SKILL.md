@@ -7,7 +7,8 @@ description: Add burned-in captions to a video by transcribing its speech locall
 
 Transcribes a video's speech (locally, via faster-whisper) and burns accurately-timed
 captions into it (via ffmpeg). Offline after a one-time model download. No API key.
-Default look is clean/minimal; the user can describe any style and you apply it.
+Default look is **edited**: bold, high-contrast, and the spoken word is highlighted as it's
+said. The user can describe any style and you apply it.
 
 ## Do this — two commands
 
@@ -68,6 +69,8 @@ If the user gives no style, run the bare command — do not ask.
 - **Viral / TikTok style**: `--word-by-word` — a few words at a time, active word highlighted
   (defaults to big, bold, centred). Change the highlight with `--highlight <name|hex>`.
   ("make it TikTok style / karaoke / word by word" → `--word-by-word`)
+- **Highlight colour**: the spoken word is highlighted yellow by default; change with
+  `--highlight <name|hex>`. For static subtitles with no highlight, use `--plain`.
 - **Readability box**: `--box` (optional `--box-color <name|hex>`) — a band behind the text.
 - **Any language / translation**: `--lang <code>` sets the spoken language (default: auto);
   `--translate` outputs English captions from any language.
