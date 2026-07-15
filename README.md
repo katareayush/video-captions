@@ -1,4 +1,4 @@
-# katareayush-marketplace
+# katareayush — Claude Code plugins
 
 A Claude Code plugin marketplace. Currently hosts **video-captions**.
 
@@ -15,7 +15,7 @@ In Claude Code:
 
 ```
 /plugin marketplace add katareayush/video-captions
-/plugin install video-captions@katareayush-marketplace
+/plugin install video-captions@katareayush
 ```
 
 Then just say, in any project:
