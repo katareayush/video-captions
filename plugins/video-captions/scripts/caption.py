@@ -134,7 +134,7 @@ def caption_one(video, args, ffmpeg, ffprobe):
         print(f"Transcribing {video.name} (first run downloads the model)...")
         transcribe(video, args.model, seg_path, language=args.lang, translate=args.translate)
         segments = json.loads(seg_path.read_text(encoding="utf-8"))["segments"]
-        events = bc.line_events(segments)
+        events = bc.line_events(segments, bc.chars_per_line(width, height, style))
         if word_by_word:
             ass = bc.render_word_by_word(segments, width, height, style, pos=pos,
                                          highlight=parse_color(args.highlight))

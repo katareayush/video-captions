@@ -47,6 +47,24 @@ def srt_time(t, sep=","):
     return f"{h:02d}:{m:02d}:{s:02d}{sep}{ms:03d}"
 
 
+# --- fitting: adapt line width & margins to the video's aspect ratio --------
+def font_px(height, style):
+    return max(16, int(height * style["size_ratio"]))
+
+
+def side_margin(width):
+    return max(30, int(width * 0.06))
+
+
+def chars_per_line(width, height, style):
+    """Max characters per line that actually fit this frame width at the chosen font size.
+    Font scales with height; the usable text width scales with width — so a fixed character
+    count overflows tall/narrow videos. ~0.5em average glyph advance for proportional fonts."""
+    usable = width - 2 * side_margin(width)
+    cpl = int(usable / (font_px(height, style) * 0.5))
+    return max(10, min(cpl, MAX_CHARS_PER_LINE))
+
+
 # --- words -> events --------------------------------------------------------
 def flatten_words(segments):
     words = []
@@ -95,9 +113,10 @@ def _wrap(text, max_chars=MAX_CHARS_PER_LINE, max_lines=MAX_LINES):
     return "\n".join(lines)
 
 
-def line_events(segments):
-    """Normal captions: short wrapped lines synced to speech. Returns [{start,end,text}]."""
-    chunks = [c for c in _chunk(flatten_words(segments), MAX_CHARS_PER_LINE * MAX_LINES, 99, MAX_GAP) if c]
+def line_events(segments, cpl=MAX_CHARS_PER_LINE):
+    """Normal captions: short wrapped lines synced to speech. Returns [{start,end,text}].
+    cpl = characters-per-line budget for this video (see chars_per_line)."""
+    chunks = [c for c in _chunk(flatten_words(segments), cpl * MAX_LINES, 99, MAX_GAP) if c]
     events = []
     for i, chunk in enumerate(chunks):
         start, end = chunk[0]["start"], chunk[-1]["end"]
@@ -107,13 +126,13 @@ def line_events(segments):
             nxt = chunks[i + 1][0]["start"]
             if end > nxt - INTER_GAP:
                 end = max(start + 0.4, nxt - INTER_GAP)
-        events.append({"start": start, "end": end, "text": _wrap(" ".join(w["text"] for w in chunk))})
+        events.append({"start": start, "end": end, "text": _wrap(" ".join(w["text"] for w in chunk), cpl)})
     return events
 
 
 # --- renderers --------------------------------------------------------------
-def _ass_header(width, height, style, alignment, margin_v, box):
-    fontsize = max(16, int(height * style["size_ratio"]))
+def _ass_header(width, height, style, alignment, margin_v, side_m, box):
+    fontsize = font_px(height, style)
     bold = -1 if style.get("bold") else 0
     primary = to_ass_color(style["primary"])
     if box:
@@ -136,7 +155,7 @@ def _ass_header(width, height, style, alignment, margin_v, box):
         "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n"
         f"Style: Default,{style['font']},{fontsize},{primary},&H000000FF,{outline_c},"
         f"{back_c},{bold},0,0,0,100,100,0,0,{border_style},{outline},{shadow},"
-        f"{alignment},60,60,{margin_v},1\n\n"
+        f"{alignment},{side_m},{side_m},{margin_v},1\n\n"
         "[Events]\n"
         "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n"
     )
@@ -145,10 +164,13 @@ def _ass_header(width, height, style, alignment, margin_v, box):
 def render_ass(events, width, height, style, pos="bottom", box=False):
     alignment = {"bottom": 2, "center": 5, "top": 8}[pos]
     margin_v = int(height * 0.06)
-    out = [_ass_header(width, height, style, alignment, margin_v, box)]
+    cpl = chars_per_line(width, height, style)
+    out = [_ass_header(width, height, style, alignment, margin_v, side_margin(width), box)]
     for e in events:
+        # re-wrap to fit this frame (also fits captions loaded from an edited .srt)
+        text = _wrap(" ".join(e["text"].split()), cpl)
         out.append(f"Dialogue: 0,{ass_time(e['start'])},{ass_time(e['end'])},Default,,0,0,0,,"
-                   + e["text"].replace("\n", "\\N"))
+                   + text.replace("\n", "\\N"))
     return "\n".join(out)
 
 
@@ -157,8 +179,10 @@ def render_word_by_word(segments, width, height, style, pos="center", highlight=
     alignment = {"bottom": 2, "center": 5, "top": 8}[pos]
     margin_v = int(height * 0.06)
     hl = to_ass_color(highlight)
-    groups = [g for g in _chunk(flatten_words(segments), 9999, WBW_GROUP, WBW_GAP) if g]
-    out = [_ass_header(width, height, style, alignment, margin_v, box=False)]
+    # keep each group to a single line that fits the frame width
+    cpl = chars_per_line(width, height, style)
+    groups = [g for g in _chunk(flatten_words(segments), cpl, WBW_GROUP, WBW_GAP) if g]
+    out = [_ass_header(width, height, style, alignment, margin_v, side_margin(width), box=False)]
     for group in groups:
         group_end = group[-1]["end"]
         for j, w in enumerate(group):
