@@ -1,6 +1,6 @@
 # katareayush — Claude Code plugins
 
-A Claude Code plugin marketplace. Currently hosts **video-captions**.
+A Claude Code plugin marketplace. Hosts **video-captions** and **seedgen**.
 
 ## video-captions
 
@@ -47,6 +47,31 @@ No rigid presets — describe what you want and Claude maps it to flags:
 
 Full flag reference is in [`plugins/video-captions/README.md`](plugins/video-captions/README.md).
 
+## seedgen
+
+Point Claude at any repo and run `/seed` — it analyzes the codebase, reads your real schema
+(SQL migrations, Prisma, Django, Mongoose, Solidity, etc.), and generates a **runnable,
+schema-aware test-data seed script** that respects enums, NOT NULL, unique, and foreign-key
+constraints. Stack-agnostic: web2, web3, Python, or anything with a data model.
+
+### Install (for anyone)
+
+```
+/plugin marketplace add katareayush/video-captions
+/plugin install seedgen@katareayush
+```
+
+Then, inside any project:
+
+```
+/seed
+/seed indian 50 users
+/seed web3 only
+```
+
+A **locale/filter** changes generated values (names, phones, addresses, currency) to match a
+region without touching the schema. Details in [`plugins/seedgen/README.md`](plugins/seedgen/README.md).
+
 ## Repo layout
 
 ```
@@ -54,12 +79,17 @@ Full flag reference is in [`plugins/video-captions/README.md`](plugins/video-cap
 ├── .claude-plugin/
 │   └── marketplace.json          # marketplace catalog
 └── plugins/
-    └── video-captions/
+    ├── video-captions/
+    │   ├── .claude-plugin/plugin.json
+    │   ├── README.md             # plugin docs + full flag reference
+    │   ├── requirements.txt
+    │   ├── scripts/              # setup, transcribe, build_captions, caption, ffmpeg_tools
+    │   └── skills/video-captions/SKILL.md
+    └── seedgen/
         ├── .claude-plugin/plugin.json
-        ├── README.md             # plugin docs + full flag reference
-        ├── requirements.txt
-        ├── scripts/              # setup, transcribe, build_captions, caption, ffmpeg_tools
-        └── skills/video-captions/SKILL.md
+        ├── README.md             # plugin docs
+        ├── commands/seed.md      # the /seed command
+        └── references/locales.md # locale/filter profiles
 ```
 
 ## License
